@@ -1,0 +1,11 @@
+gestor_backend/
+│
+├── Cargo.toml
+├── .env
+└── src/
+    ├── main.rs             ← Punto de entrada
+    ├── db.rs               ← Conexión a MySQL
+    ├── models.rs           ← Structs (producto, cotización, etc.)
+    ├── routes.rs           ← Rutas API agrupadas
+    ├── auth.rs             ← Login y verificación JWT (básico)
+    └── wordpress_sync.rs   ← Integración con WooCommerce
