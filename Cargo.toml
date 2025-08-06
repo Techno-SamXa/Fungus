@@ -1,0 +1,38 @@
+[package]
+name = "gestor_backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Framework web
+actix-web = "4.5.1"
+actix-rt = "2.9.0"
+
+# Logging
+env_logger = "0.11"
+log = "0.4"
+
+# Conexión a MySQL con SQLx (features activadas)
+sqlx = { version = "0.7", features = ["mysql", "runtime-actix-native-tls", "macros"] }
+
+# Carga de entorno
+dotenvy = "0.15"
+
+# Serialización y validación
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+validator = { version = "0.16", features = ["derive"] }
+
+# Autenticación futura (JWT y hashing de contraseñas)
+jsonwebtoken = "9.3.0"
+argon2 = "0.5"
+
+# Peticiones HTTP (para integración con WordPress)
+reqwest = { version = "0.12", features = ["json", "blocking", "native-tls"] }
+
+# Para manejar errores de forma elegante
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Tipos de tiempo
+chrono = { version = "0.4", features = ["serde"] }
