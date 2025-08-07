@@ -2,41 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Fungus Mycelium Design System - Professional mushroom production dashboard
+All colors MUST be HSL for consistent theming.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 98%;
+    --foreground: 210 11% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 11% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 11% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Fungus green institutional color */
+    --primary: 140 65% 42%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 16% 96%;
+    --secondary-foreground: 210 11% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 16% 96%;
+    --muted-foreground: 210 11% 54%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 140 45% 95%;
+    --accent-foreground: 140 65% 42%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Warning amber for "Próximamente" */
+    --warning: 45 96% 64%;
+    --warning-foreground: 25 95% 15%;
 
-    --radius: 0.5rem;
+    /* Info blue for additional states */
+    --info: 210 100% 56%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 140 65% 42%;
+
+    --radius: 0.625rem;
+
+    /* Dashboard specific gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(140 65% 42%), hsl(140 65% 48%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 99%));
+    --gradient-success: linear-gradient(135deg, hsl(140 65% 42%), hsl(140 65% 35%));
+    
+    /* Shadows for elevation */
+    --shadow-card: 0 1px 3px hsl(210 11% 15% / 0.08), 0 1px 2px hsl(210 11% 15% / 0.04);
+    --shadow-hover: 0 4px 12px hsl(210 11% 15% / 0.12), 0 2px 6px hsl(210 11% 15% / 0.08);
+    --shadow-primary: 0 4px 12px hsl(140 65% 42% / 0.25);
+    
+    /* Animation utilities */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,41 +79,59 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 210 24% 8%;
+    --foreground: 210 16% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 20% 10%;
+    --card-foreground: 210 16% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 20% 10%;
+    --popover-foreground: 210 16% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Maintain green identity in dark mode */
+    --primary: 140 65% 48%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 20% 15%;
+    --secondary-foreground: 210 16% 85%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 20% 15%;
+    --muted-foreground: 210 11% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 140 45% 18%;
+    --accent-foreground: 140 65% 75%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --warning: 45 96% 64%;
+    --warning-foreground: 25 95% 15%;
+
+    --info: 210 100% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 210 20% 20%;
+    --input: 210 20% 20%;
+    --ring: 140 65% 48%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(140 65% 48%), hsl(140 65% 42%));
+    --gradient-card: linear-gradient(180deg, hsl(210 20% 10%), hsl(210 20% 12%));
+    --gradient-success: linear-gradient(135deg, hsl(140 65% 48%), hsl(140 65% 40%));
+    
+    /* Dark shadows */
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.3), 0 1px 2px hsl(0 0% 0% / 0.2);
+    --shadow-hover: 0 4px 12px hsl(0 0% 0% / 0.4), 0 2px 6px hsl(0 0% 0% / 0.3);
+    --shadow-primary: 0 4px 12px hsl(140 65% 48% / 0.3);
+
+    --sidebar-background: 210 24% 8%;
+    --sidebar-foreground: 210 16% 85%;
+    --sidebar-primary: 140 65% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 210 20% 15%;
+    --sidebar-accent-foreground: 210 16% 85%;
+    --sidebar-border: 210 20% 20%;
+    --sidebar-ring: 140 65% 48%;
   }
 }
 
@@ -101,5 +142,35 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  /* Dashboard card variants */
+  .dashboard-card {
+    @apply bg-card border border-border rounded-lg shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hover)] transition-[var(--transition-smooth)];
+  }
+  
+  .dashboard-card-primary {
+    @apply dashboard-card bg-gradient-to-br from-primary to-primary/90 text-primary-foreground border-primary/20;
+  }
+  
+  .dashboard-card-coming-soon {
+    @apply dashboard-card bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20;
+  }
+  
+  /* Interactive elements */
+  .interactive-hover {
+    @apply transition-[var(--transition-smooth)] hover:scale-[1.02] hover:shadow-[var(--shadow-hover)];
+  }
+  
+  .primary-glow {
+    @apply shadow-[var(--shadow-primary)];
+  }
+  
+  /* Typography enhancements */
+  .title-gradient {
+    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
   }
 }
