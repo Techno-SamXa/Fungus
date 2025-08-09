@@ -132,7 +132,7 @@ router.post('/login', authLimiter, loginValidation, async (req, res) => {
 
     // Buscar usuario por username o email
     const users = await query(
-      'SELECT id, username, email, password_hash, is_active, role FROM users WHERE username = ? OR email = ?',
+      'SELECT id, username, email, password_hash, is_verified, role FROM users WHERE username = ? OR email = ?',
       [username, username]
     );
 
@@ -146,12 +146,12 @@ router.post('/login', authLimiter, loginValidation, async (req, res) => {
 
     const user = users[0];
 
-    // Verificar si la cuenta está activa
-    if (!user.is_active) {
+    // Verificar si la cuenta está verificada
+    if (!user.is_verified) {
       await logAuthAttempt(user.id, username, 'login_failed', req);
       return res.status(401).json({
         success: false,
-        message: 'Cuenta desactivada'
+        message: 'Cuenta no verificada. Por favor verifica tu email.'
       });
     }
 
@@ -165,9 +165,9 @@ router.post('/login', authLimiter, loginValidation, async (req, res) => {
       });
     }
 
-    // Actualizar último login
+    // Actualizar timestamp de última actualización
     await query(
-      'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [user.id]
     );
 

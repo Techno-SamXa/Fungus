@@ -5,9 +5,9 @@ require('dotenv').config();
 const dbConfig = {
   host: process.env.DB_HOST || '50.87.185.24',
   user: process.env.DB_USER || 'ubtrodmy_Admin',
-  password: process.env.DB_PASSWORD || '(?9g&^tP#0Lwf\\!?1RHOPk4cTiX1Ps^KcGV',
+  password: '(?9g&^tP#0Lwf\\!?1RHOPk4cTiX1Ps^KcGV', // Contraseña hardcodeada que funciona
   database: process.env.DB_NAME || 'ubtrodmy_Users',
-  port: process.env.DB_PORT || 3306,
+  port: parseInt(process.env.DB_PORT) || 3306,
   ssl: {
     rejectUnauthorized: false
   },

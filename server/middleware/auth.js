@@ -19,7 +19,7 @@ const authenticateToken = async (req, res, next) => {
     
     // Verificar que el usuario existe y está activo
     const users = await query(
-      'SELECT id, username, email, role, is_active FROM users WHERE id = ?',
+      'SELECT id, username, email, role, is_verified FROM users WHERE id = ?',
       [decoded.userId]
     );
 
@@ -32,7 +32,7 @@ const authenticateToken = async (req, res, next) => {
 
     const user = users[0];
     
-    if (!user.is_active) {
+    if (!user.is_verified) {
       return res.status(401).json({ 
         success: false, 
         message: 'Cuenta desactivada' 

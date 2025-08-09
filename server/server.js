@@ -2,7 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+
+// Configurar dotenv según el entorno
+if (process.env.NODE_ENV === 'production') {
+  require('dotenv').config({ path: '.env.production' });
+} else {
+  require('dotenv').config();
+}
 
 const { testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
