@@ -46,32 +46,44 @@ const copyRecursive = (src, dest) => {
 copyRecursive(path.join(__dirname, 'dist'), path.join(deployDir, 'frontend'));
 console.log('✅ Archivos del frontend copiados');
 
-// 4. Copiar archivos del backend
-console.log('📋 Copiando archivos del backend...');
+// 4. Copiar archivos del backend PHP
+console.log('📋 Copiando archivos del backend PHP...');
 const backendFiles = [
-  'config',
-  'middleware', 
-  'routes',
-  'scripts',
-  'package.json',
-  'server.js',
-  '.env.production'
+  '.env',
+  'index.php',
+  'init-database.php',
+  '.htaccess',
+  'README.md'
 ];
 
+const backendDirs = [
+  'config',
+  'routes'
+];
+
+const phpBackendDir = path.join(__dirname, 'php-backend');
+const backendDeployDir = path.join(deployDir, 'php-backend');
+fs.mkdirSync(backendDeployDir);
+
+// Copiar archivos individuales del backend PHP
 backendFiles.forEach(file => {
-  const srcPath = path.join(__dirname, 'server', file);
-  const destPath = path.join(deployDir, 'backend', file);
-  
+  const srcPath = path.join(phpBackendDir, file);
+  const destPath = path.join(backendDeployDir, file);
   if (fs.existsSync(srcPath)) {
-    if (fs.statSync(srcPath).isDirectory()) {
-      copyRecursive(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
+    fs.copyFileSync(srcPath, destPath);
   }
 });
 
-console.log('✅ Archivos del backend copiados');
+// Copiar directorios del backend PHP
+backendDirs.forEach(dir => {
+  const srcPath = path.join(phpBackendDir, dir);
+  const destPath = path.join(backendDeployDir, dir);
+  if (fs.existsSync(srcPath)) {
+    copyRecursive(srcPath, destPath);
+  }
+});
+
+console.log('✅ Archivos del backend PHP copiados');
 
 // 5. Crear archivo .htaccess para el frontend
 console.log('📝 Creando .htaccess...');
@@ -125,22 +137,22 @@ const deployInstructions = `# Instrucciones de Despliegue
 1. Sube todos los archivos de la carpeta 'frontend/' a tu directorio public_html en cPanel
 2. Asegúrate de que el archivo .htaccess se haya subido correctamente
 
-## Backend
-1. Sube todos los archivos de la carpeta 'backend/' a un directorio fuera de public_html (ej: /home/usuario/nodejs/)
-2. Edita el archivo .env.production con tus credenciales reales
-3. En cPanel, ve a "Node.js App" y configura:
-   - Directorio: /nodejs/ (o donde hayas subido los archivos)
-   - Archivo de inicio: server.js
-   - Variables de entorno: NODE_ENV=production
-4. Instala dependencias: npm install --production
-5. Inicializa la base de datos: node scripts/init-database.js
-6. Inicia la aplicación: npm run prod
+## Backend PHP
+1. Sube todos los archivos de la carpeta 'php-backend/' a: public_html/php-backend/
+2. Edita el archivo .env con tus credenciales reales de base de datos
+3. Ejecuta el script de inicialización: php init-database.php
 
 ## Verificación
-- Frontend: https://tu-dominio.com
-- Backend health: https://tu-dominio.com/api/health
+- Frontend: https://tu-dominio.com/admin/
+- Backend test: https://tu-dominio.com/php-backend/test-connection.php
+- API login: https://tu-dominio.com/php-backend/login
 
-¡Recuerda actualizar las URLs y credenciales en .env.production!`;
+## Configuración Adicional
+- Asegúrate de que tu hosting soporte PHP 7.4+
+- Verifica que las extensiones PDO y PDO_MySQL estén habilitadas
+- Configura las variables de entorno en el archivo .env del backend PHP
+
+**NOTA: Este proyecto usa backend PHP, no Node.js**`;
 
 fs.writeFileSync(path.join(deployDir, 'DEPLOY_INSTRUCTIONS.txt'), deployInstructions);
 
