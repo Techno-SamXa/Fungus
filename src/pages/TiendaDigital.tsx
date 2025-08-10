@@ -345,11 +345,11 @@ const TiendaDigital = () => {
                         <TableCell className="p-3">
                           <div className="space-y-1">
                             <Badge variant="secondary" className="bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700 font-semibold text-xs">
-                              ${Math.floor(product.price).toLocaleString()} CLP
+                              ${Math.floor(product.price).toLocaleString('de-DE')} CLP
                             </Badge>
                             {product.sale_price && (
                               <div className="text-xs text-gray-500 line-through">
-                                ${Math.floor(product.regular_price).toLocaleString()} CLP
+                                ${Math.floor(product.regular_price).toLocaleString('de-DE')} CLP
                               </div>
                             )}
                           </div>
@@ -435,7 +435,7 @@ const TiendaDigital = () => {
                             
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                                ${Math.floor(product.price).toLocaleString()} CLP
+                                ${Math.floor(product.price).toLocaleString('de-DE')} CLP
                               </span>
                               <Badge variant={product.stock_quantity > 0 ? "default" : "destructive"} className="text-xs">
                                 {product.manage_stock ? product.stock_quantity : '∞'}

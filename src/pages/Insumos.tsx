@@ -408,10 +408,10 @@ const Insumos = () => {
                         id="price"
                         name="price"
                         type="number"
-                        step="0.01"
+                        step="1"
                         value={formData.price}
                         onChange={handleInputChange}
-                        placeholder="0.00"
+                        placeholder="0"
                         required
                         className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
                       />
@@ -577,7 +577,7 @@ const Insumos = () => {
                      </TableCell>
                      <TableCell className="p-4">
                        <div className="font-semibold text-green-600 dark:text-green-400 text-sm md:text-base">
-                         ${insumo.price?.toLocaleString() || '0'}
+                         ${Math.floor(insumo.price || 0).toLocaleString('de-DE')} CLP
                        </div>
                      </TableCell>
                      <TableCell className="p-4">
@@ -673,7 +673,7 @@ const Insumos = () => {
                        <div className="flex items-center justify-between gap-4">
                          <div className="flex items-center gap-3">
                            <span className="font-semibold text-green-600 dark:text-green-400 text-base">
-                             ${insumo.price?.toLocaleString() || '0'}
+                             ${Math.floor(insumo.price || 0).toLocaleString('de-DE')} CLP
                            </span>
                            <Badge 
                              variant={insumo.stock > 10 ? "default" : insumo.stock > 0 ? "secondary" : "destructive"}

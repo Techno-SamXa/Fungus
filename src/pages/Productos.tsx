@@ -531,7 +531,7 @@ const Productos = () => {
                      </TableCell>
                      <TableCell>
                         <Badge variant="secondary" className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700 font-semibold text-xs md:text-sm">
-                           ${Math.floor(product.price).toLocaleString()} CLP
+                           ${Math.floor(product.price).toLocaleString('de-DE')} CLP
                          </Badge>
                       </TableCell>
                      <TableCell>
@@ -616,7 +616,7 @@ const Productos = () => {
                        <div className="flex items-center justify-between gap-2">
                          <div className="flex items-center gap-2">
                            <Badge variant="secondary" className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700 font-semibold text-xs">
-                             ${Math.floor(product.price).toLocaleString()} CLP
+                             ${Math.floor(product.price).toLocaleString('de-DE')} CLP
                            </Badge>
                            <Badge variant={product.stock > 0 ? "default" : "destructive"} className={`${product.stock > 0 ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white" : "bg-gradient-to-r from-red-500 to-red-600"} text-xs`}>
                              {product.stock} und
