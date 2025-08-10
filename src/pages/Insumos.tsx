@@ -18,6 +18,7 @@ interface Insumo {
   price: number;
   stock: number;
   dimensions: string;
+  image?: string;
   created_at: string;
   updated_at: string;
 }
@@ -48,7 +49,7 @@ const Insumos = () => {
   const fetchInsumos = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8081/routes/insumos.php', {
+      const response = await fetch('http://localhost:8081/insumos', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -82,7 +83,7 @@ const Insumos = () => {
     setRefreshing(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8081/routes/insumos.php', {
+      const response = await fetch('http://localhost:8081/insumos', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -134,8 +135,8 @@ const Insumos = () => {
     try {
       const token = localStorage.getItem('auth_token');
       const url = editingInsumo 
-        ? `http://localhost:8081/routes/insumos.php?id=${editingInsumo.id}`
-        : 'http://localhost:8081/routes/insumos.php';
+        ? `http://localhost:8081/insumos?id=${editingInsumo.id}`
+        : 'http://localhost:8081/insumos';
       
       const method = editingInsumo ? 'PUT' : 'POST';
       
@@ -155,14 +156,15 @@ const Insumos = () => {
         formDataToSend.append('image', formData.image);
         body = formDataToSend;
       } else {
-        // Si no hay imagen, usar JSON
+        // Si no hay imagen nueva, usar JSON
         headers['Content-Type'] = 'application/json';
         body = JSON.stringify({
           name: formData.name,
           description: formData.description,
           price: parseFloat(formData.price),
           stock: parseInt(formData.stock),
-          dimensions: formData.dimensions
+          dimensions: formData.dimensions,
+          image: editingInsumo?.image || null // Mantener imagen existente o null
         });
       }
       
@@ -207,7 +209,7 @@ const Insumos = () => {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:8081/routes/insumos.php?id=${id}`, {
+      const response = await fetch(`http://localhost:8081/insumos?id=${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -247,7 +249,7 @@ const Insumos = () => {
       price: insumo.price.toString(),
       stock: insumo.stock.toString(),
       dimensions: insumo.dimensions,
-      image: null
+      image: null // Nueva imagen a subir (si se selecciona)
     });
     setIsDialogOpen(true);
   };
@@ -370,134 +372,134 @@ const Insumos = () => {
                   <span className="xs:hidden">Nuevo</span>
                 </Button>
               </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] mx-2 sm:mx-4 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 border-0 shadow-2xl w-[calc(100vw-16px)] sm:w-auto">
-            <DialogHeader className="space-y-3 pb-4 sm:pb-6">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
-                  <Factory className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                </div>
-                <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                  {editingInsumo ? 'Editar Insumo' : 'Nuevo Insumo'}
-                </DialogTitle>
-              </div>
-              <DialogDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
-                {editingInsumo 
-                  ? 'Modifica los datos del insumo seleccionado para mantener tu inventario actualizado.'
-                  : 'Completa los campos para agregar un nuevo insumo a tu catálogo de materiales.'}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Ej: Alcohol 99%"
-                    required
-                    className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-sm font-medium text-gray-700 dark:text-gray-300">Precio *</Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    placeholder="0.00"
-                    required
-                    className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="stock" className="text-sm font-medium text-gray-700 dark:text-gray-300">Stock *</Label>
-                  <Input
-                    id="stock"
-                    name="stock"
-                    type="number"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    placeholder="0"
-                    required
-                    className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dimensions" className="text-sm font-medium text-gray-700 dark:text-gray-300">Especificaciones</Label>
-                  <Input
-                    id="dimensions"
-                    name="dimensions"
-                    value={formData.dimensions}
-                    onChange={handleInputChange}
-                    placeholder="Ej: 500ml, 1kg, etc."
-                    className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">Descripción *</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Describe el insumo, su uso y características..."
-                  required
-                  rows={3}
-                  className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 resize-none"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="image" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <Camera className="h-4 w-4" />
-                  Imagen del insumo
-                </Label>
-                <Input
-                  id="image"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 file:bg-green-50 file:text-green-700 file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-3 hover:file:bg-green-100"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</p>
-              </div>
-              
-              <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
-                  className="flex-1 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 h-11 sm:h-10 text-base sm:text-sm"
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] h-11 sm:h-10 text-base sm:text-sm"
-                >
-                  <Factory className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">{editingInsumo ? 'Actualizar Insumo' : 'Crear Insumo'}</span>
-                  <span className="sm:hidden">{editingInsumo ? 'Actualizar' : 'Crear'}</span>
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-          </Dialog>
-        </div>
-        </CardHeader>
-      </Card>
-      <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+              <DialogContent className="sm:max-w-[500px] mx-2 sm:mx-4 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 border-0 shadow-2xl w-[calc(100vw-16px)] sm:w-auto">
+                <DialogHeader className="space-y-3 pb-4 sm:pb-6">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="p-1.5 sm:p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
+                      <Factory className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                    </div>
+                    <DialogTitle className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                      {editingInsumo ? 'Editar Insumo' : 'Nuevo Insumo'}
+                    </DialogTitle>
+                  </div>
+                  <DialogDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                    {editingInsumo 
+                      ? 'Modifica los datos del insumo seleccionado para mantener tu inventario actualizado.'
+                      : 'Completa los campos para agregar un nuevo insumo a tu catálogo de materiales.'}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Ej: Alcohol 99%"
+                        required
+                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="price" className="text-sm font-medium text-gray-700 dark:text-gray-300">Precio *</Label>
+                      <Input
+                        id="price"
+                        name="price"
+                        type="number"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        placeholder="0.00"
+                        required
+                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="stock" className="text-sm font-medium text-gray-700 dark:text-gray-300">Stock *</Label>
+                      <Input
+                        id="stock"
+                        name="stock"
+                        type="number"
+                        value={formData.stock}
+                        onChange={handleInputChange}
+                        placeholder="0"
+                        required
+                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dimensions" className="text-sm font-medium text-gray-700 dark:text-gray-300">Especificaciones</Label>
+                      <Input
+                        id="dimensions"
+                        name="dimensions"
+                        value={formData.dimensions}
+                        onChange={handleInputChange}
+                        placeholder="Ej: 500ml, 1kg, etc."
+                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">Descripción *</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Describe el insumo, su uso y características..."
+                      required
+                      rows={3}
+                      className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 resize-none"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="image" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                      <Camera className="h-4 w-4" />
+                      Imagen del insumo
+                    </Label>
+                    <Input
+                      id="image"
+                      name="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 file:bg-green-50 file:text-green-700 file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-3 hover:file:bg-green-100"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</p>
+                  </div>
+                  
+                  <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-6">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsDialogOpen(false)}
+                      className="flex-1 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 h-11 sm:h-10 text-base sm:text-sm"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] h-11 sm:h-10 text-base sm:text-sm"
+                    >
+                      <Factory className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">{editingInsumo ? 'Actualizar Insumo' : 'Crear Insumo'}</span>
+                      <span className="sm:hidden">{editingInsumo ? 'Actualizar' : 'Crear'}</span>
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+           </div>
+         </CardHeader>
+        </Card>
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b border-green-100 dark:border-green-800">
           <CardTitle className="flex items-center gap-3 text-xl">
             <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-md">
@@ -550,7 +552,19 @@ const Insumos = () => {
                    <TableRow key={insumo.id} className={`hover:bg-gradient-to-r hover:from-green-50/50 hover:to-emerald-50/50 dark:hover:from-green-900/10 dark:hover:to-emerald-900/10 transition-all duration-200 ${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}`}>
                      <TableCell className="p-4">
                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-sm">
-                         <Factory className="h-6 w-6 md:h-8 md:w-8 text-gray-400 dark:text-gray-500" />
+                         {insumo.image ? (
+                           <img 
+                             src={insumo.image} 
+                             alt={insumo.name}
+                             className="w-full h-full object-cover"
+                             onError={(e) => {
+                               const target = e.target as HTMLImageElement;
+                               target.style.display = 'none';
+                               target.nextElementSibling?.classList.remove('hidden');
+                             }}
+                           />
+                         ) : null}
+                         <Factory className={`h-6 w-6 md:h-8 md:w-8 text-gray-400 dark:text-gray-500 ${insumo.image ? 'hidden' : ''}`} />
                        </div>
                      </TableCell>
                      <TableCell className="p-4">
@@ -612,7 +626,19 @@ const Insumos = () => {
                  <CardContent className="p-4">
                    <div className="flex items-start gap-4">
                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-sm flex-shrink-0">
-                       <Factory className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                       {insumo.image ? (
+                         <img 
+                           src={insumo.image} 
+                           alt={insumo.name}
+                           className="w-full h-full object-cover"
+                           onError={(e) => {
+                             const target = e.target as HTMLImageElement;
+                             target.style.display = 'none';
+                             target.nextElementSibling?.classList.remove('hidden');
+                           }}
+                         />
+                       ) : null}
+                       <Factory className={`h-8 w-8 text-gray-400 dark:text-gray-500 ${insumo.image ? 'hidden' : ''}`} />
                      </div>
                      
                      <div className="flex-1 min-w-0">

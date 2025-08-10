@@ -55,7 +55,19 @@ try {
             
         case 'POST':
             // Crear nuevo insumo
-            $input = json_decode(file_get_contents('php://input'), true);
+            $input = null;
+            $imageUrl = null;
+            
+            // Verificar si es FormData (con imagen) o JSON
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                // Procesar FormData con imagen
+                $input = $_POST;
+                $imageUrl = handleImageUpload($_FILES['image']);
+            } else {
+                // Procesar JSON
+                $input = json_decode(file_get_contents('php://input'), true);
+                $imageUrl = $input['image'] ?? null;
+            }
             
             if (!$input || !isset($input['name']) || !isset($input['price'])) {
                 http_response_code(400);
@@ -64,8 +76,8 @@ try {
             }
             
             $stmt = $pdo->prepare("
-                INSERT INTO insumos (name, description, price, stock, dimensions) 
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO insumos (name, description, price, stock, dimensions, image) 
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
             
             $result = $stmt->execute([
@@ -73,7 +85,8 @@ try {
                 $input['description'] ?? '',
                 (float) $input['price'],
                 (int) ($input['stock'] ?? 0),
-                $input['dimensions'] ?? ''
+                $input['dimensions'] ?? '',
+                $imageUrl
             ]);
             
             if ($result) {
@@ -95,7 +108,19 @@ try {
             
         case 'PUT':
             // Actualizar insumo existente
-            $input = json_decode(file_get_contents('php://input'), true);
+            $input = null;
+            $imageUrl = null;
+            
+            // Verificar si es FormData (con imagen) o JSON
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                // Procesar FormData con imagen
+                $input = $_POST;
+                $imageUrl = handleImageUpload($_FILES['image']);
+            } else {
+                // Procesar JSON
+                $input = json_decode(file_get_contents('php://input'), true);
+                $imageUrl = $input['image'] ?? null;
+            }
             
             if (!$input || !isset($input['id'])) {
                 http_response_code(400);
@@ -105,7 +130,7 @@ try {
             
             $stmt = $pdo->prepare("
                 UPDATE insumos 
-                SET name = ?, description = ?, price = ?, stock = ?, dimensions = ?, updated_at = CURRENT_TIMESTAMP
+                SET name = ?, description = ?, price = ?, stock = ?, dimensions = ?, image = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             ");
             
@@ -115,6 +140,7 @@ try {
                 (float) $input['price'],
                 (int) ($input['stock'] ?? 0),
                 $input['dimensions'] ?? '',
+                $imageUrl,
                 $input['id']
             ]);
             
@@ -167,5 +193,38 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error del servidor: ' . $e->getMessage()]);
+}
+
+// Función para manejar la subida de imágenes
+function handleImageUpload($file) {
+    $uploadDir = 'uploads/insumos/';
+    
+    // Crear directorio si no existe
+    if (!file_exists($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+    
+    // Validar tipo de archivo
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!in_array($file['type'], $allowedTypes)) {
+        throw new Exception('Tipo de archivo no permitido');
+    }
+    
+    // Validar tamaño (máximo 5MB)
+    if ($file['size'] > 5 * 1024 * 1024) {
+        throw new Exception('El archivo es demasiado grande');
+    }
+    
+    // Generar nombre único
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = uniqid() . '.' . $extension;
+    $filepath = $uploadDir . $filename;
+    
+    // Mover archivo
+    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+        return 'http://localhost:8081/' . $filepath;
+    } else {
+        throw new Exception('Error al subir el archivo');
+    }
 }
 ?>
