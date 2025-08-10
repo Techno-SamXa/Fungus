@@ -16,7 +16,7 @@ interface DashboardCardProps {
     value: string | number
   }
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }
 
 export function DashboardCard({
@@ -31,9 +31,9 @@ export function DashboardCard({
 }: DashboardCardProps) {
   const isDisabled = comingSoon
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (!isDisabled && onClick) {
-      onClick()
+      onClick(e)
     }
   }
 

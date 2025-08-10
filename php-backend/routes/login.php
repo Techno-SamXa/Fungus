@@ -47,9 +47,9 @@ try {
         exit();
     }
     
-    // Conectar a la base de datos
+    // Conectar a la base de datos de usuarios
     $database = new Database();
-    $pdo = $database->getConnection();
+    $pdo = $database->getUserConnection();
     
     // Buscar usuario por username o email
     $stmt = $pdo->prepare('SELECT id, username, email, password_hash, is_verified FROM users WHERE username = ? OR email = ?');

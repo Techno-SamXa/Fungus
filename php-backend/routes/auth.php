@@ -36,7 +36,7 @@ function handleRegister() {
         }
         
         $database = new Database();
-        $conn = $database->getConnection();
+        $conn = $database->getUserConnection();
         
         // Verificar si el usuario ya existe
         $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
@@ -104,7 +104,7 @@ function handleLogin() {
         $password = $input['password'];
         
         $database = new Database();
-        $conn = $database->getConnection();
+        $conn = $database->getUserConnection();
         
         // Buscar usuario
         $stmt = $conn->prepare("
@@ -156,7 +156,7 @@ function handleProfile() {
         $payload = JWT::validateToken();
         
         $database = new Database();
-        $conn = $database->getConnection();
+        $conn = $database->getUserConnection();
         
         $stmt = $conn->prepare("
             SELECT id, username, email, full_name, is_verified, created_at 

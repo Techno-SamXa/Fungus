@@ -23,7 +23,7 @@ const App = () => (
           {/* 👇 clave */}
           <BrowserRouter basename="/admin">
             <Routes>
-              <Route path="/" element={
+              <Route path="/*" element={
                 <ProtectedRoute>
                   <Index />
                 </ProtectedRoute>

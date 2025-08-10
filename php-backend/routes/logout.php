@@ -52,7 +52,7 @@ try {
     
     // Conectar a la base de datos
     $database = new Database();
-    $pdo = $database->getConnection();
+    $pdo = $database->getUserConnection();
     
     // Si tenemos user_id, eliminar todas las sesiones del usuario
     if ($user_id) {

@@ -23,7 +23,8 @@ import {
   Calendar,
   BarChart3,
   HelpCircle,
-  LogOut
+  LogOut,
+  Store
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,9 +32,15 @@ import fungusLogo from "@/assets/fungus-logo.png"
 
 const navigation = [
   { 
-    title: "Productos", 
+    title: "Inventario Interno", 
     url: "/productos", 
     icon: Package,
+    active: true
+  },
+  { 
+    title: "Tienda Digital", 
+    url: "/tienda-digital", 
+    icon: Store,
     active: true
   },
   { 

@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DashboardCard } from "@/components/dashboard/DashboardCard"
 import { 
   Package,
@@ -11,74 +13,187 @@ import {
   BarChart3,
   TrendingUp,
   DollarSign,
-  AlertTriangle
+  AlertTriangle,
+  Store
 } from "lucide-react"
 
-const dashboardModules = [
-  {
-    title: "Productos",
-    description: "Gestión completa de hongos medicinales y comestibles en producción",
-    icon: <Package className="h-6 w-6" />,
-    href: "/productos",
-    stats: { label: "productos activos", value: 24 }
-  },
-  {
-    title: "Insumos",
-    description: "Control de materiales, sustrato y equipamiento para cultivo",
-    icon: <Factory className="h-6 w-6" />,
-    href: "/insumos",
-    stats: { label: "insumos en stock", value: 156 }
-  },
-  {
-    title: "Compradores",
-    description: "Administración de clientes y relaciones comerciales",
-    icon: <Users className="h-6 w-6" />,
-    href: "/compradores",
-    stats: { label: "compradores activos", value: 12 }
-  },
-  {
-    title: "Proveedores",
-    description: "Red de proveedores de insumos y servicios especializados",
-    icon: <Truck className="h-6 w-6" />,
-    href: "/proveedores",
-    stats: { label: "proveedores", value: 8 }
-  },
-  {
-    title: "Cotizaciones",
-    description: "Generación y seguimiento de presupuestos comerciales",
-    icon: <FileText className="h-6 w-6" />,
-    href: "/cotizaciones",
-    stats: { label: "cotizaciones abiertas", value: 6 }
-  },
-  {
-    title: "Ventas",
-    description: "Registro de transacciones y análisis de rendimiento comercial",
-    icon: <ShoppingCart className="h-6 w-6" />,
-    href: "/ventas",
-    stats: { label: "ventas este mes", value: 43 }
-  },
-  {
-    title: "Compras",
-    description: "Gestión de adquisiciones y control de gastos operativos",
-    icon: <ShoppingBag className="h-6 w-6" />,
-    href: "/compras",
-    stats: { label: "órdenes pendientes", value: 3 }
-  },
-  {
-    title: "Calendarización",
-    description: "Planificación de ciclos de cultivo y programación de tareas",
-    icon: <Calendar className="h-6 w-6" />,
-    comingSoon: true
-  },
-  {
-    title: "Reportes",
-    description: "Análisis detallado de producción, ventas y rentabilidad",
-    icon: <BarChart3 className="h-6 w-6" />,
-    comingSoon: true
-  }
-]
-
 export default function Dashboard() {
+  const navigate = useNavigate()
+  const [stats, setStats] = useState({
+    productos: 0,
+    tiendaDigital: 0,
+    insumos: 0,
+    compradores: 12,
+    proveedores: 8,
+    cotizaciones: 6,
+    ventas: 43,
+    compras: 3
+  })
+  const [loading, setLoading] = useState(true)
+
+  // Función para obtener el stock total de productos desde la API local
+  const fetchProductsStock = async () => {
+    try {
+      const token = localStorage.getItem('auth_token')
+      const response = await fetch('http://localhost:8081/products', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        // Sumar el stock de todos los productos
+        return data.reduce((total, product) => total + (product.stock || 0), 0)
+      }
+    } catch (error) {
+      console.error('Error fetching products stock:', error)
+    }
+    return 0
+  }
+
+  // Función para obtener el conteo de productos de WooCommerce
+  const fetchWooCommerceCount = async () => {
+    try {
+      const token = localStorage.getItem('auth_token')
+      const response = await fetch('http://localhost:8081/woocommerce', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        return data.length || 0
+      }
+    } catch (error) {
+      console.error('Error fetching WooCommerce products count:', error)
+    }
+    return 0
+  }
+
+  // Función para obtener el stock total de insumos desde la API local
+  const fetchInsumosStock = async () => {
+    try {
+      const token = localStorage.getItem('auth_token')
+      const response = await fetch('http://localhost:8081/insumos', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json()
+        // Sumar el stock de todos los insumos
+        return data.reduce((total, insumo) => total + (insumo.stock || 0), 0)
+      }
+    } catch (error) {
+      console.error('Error fetching insumos stock:', error)
+    }
+    return 0
+  }
+
+  // Cargar estadísticas al montar el componente
+  useEffect(() => {
+    const loadStats = async () => {
+      setLoading(true)
+      const [productosStock, wooCommerceCount, insumosStock] = await Promise.all([
+        fetchProductsStock(),
+        fetchWooCommerceCount(),
+        fetchInsumosStock()
+      ])
+      
+      setStats(prev => ({
+        ...prev,
+        productos: productosStock,
+        tiendaDigital: wooCommerceCount,
+        insumos: insumosStock
+      }))
+      setLoading(false)
+    }
+
+    loadStats()
+    
+    // Configurar polling para actualización en tiempo real cada 30 segundos
+    const interval = setInterval(() => {
+      loadStats()
+    }, 30000); // 30 segundos
+    
+    // Limpiar el interval cuando el componente se desmonte
+    return () => clearInterval(interval);
+  }, [])
+
+  const dashboardModules = [
+    {
+      title: "Inventario Interno",
+      description: "Gestión y control de productos internos en desarrollo y producción",
+      icon: <Package className="h-6 w-6" />,
+      href: "/productos",
+      stats: { label: "unidades en stock", value: stats.productos }
+    },
+    {
+      title: "Tienda Digital",
+      description: "Conexión con WooCommerce para gestión de productos online",
+      icon: <Store className="h-6 w-6" />,
+      href: "/tienda-digital",
+      stats: { label: "productos sincronizados", value: stats.tiendaDigital }
+    },
+    {
+      title: "Insumos",
+      description: "Control de materiales, sustrato y equipamiento para cultivo",
+      icon: <Factory className="h-6 w-6" />,
+      href: "/insumos",
+      stats: { label: "insumos en stock", value: stats.insumos }
+    },
+    {
+      title: "Compradores",
+      description: "Administración de clientes y relaciones comerciales",
+      icon: <Users className="h-6 w-6" />,
+      href: "/compradores",
+      stats: { label: "compradores activos", value: stats.compradores }
+    },
+    {
+      title: "Proveedores",
+      description: "Red de proveedores de insumos y servicios especializados",
+      icon: <Truck className="h-6 w-6" />,
+      href: "/proveedores",
+      stats: { label: "proveedores", value: stats.proveedores }
+    },
+    {
+      title: "Cotizaciones",
+      description: "Generación y seguimiento de presupuestos comerciales",
+      icon: <FileText className="h-6 w-6" />,
+      href: "/cotizaciones",
+      stats: { label: "cotizaciones abiertas", value: stats.cotizaciones }
+    },
+    {
+      title: "Ventas",
+      description: "Registro de transacciones y análisis de rendimiento comercial",
+      icon: <ShoppingCart className="h-6 w-6" />,
+      href: "/ventas",
+      stats: { label: "ventas este mes", value: stats.ventas }
+    },
+    {
+      title: "Compras",
+      description: "Gestión de adquisiciones y control de gastos operativos",
+      icon: <ShoppingBag className="h-6 w-6" />,
+      href: "/compras",
+      stats: { label: "órdenes pendientes", value: stats.compras }
+    },
+    {
+      title: "Calendarización",
+      description: "Planificación de ciclos de cultivo y programación de tareas",
+      icon: <Calendar className="h-6 w-6" />,
+      comingSoon: true
+    },
+    {
+      title: "Reportes",
+      description: "Análisis detallado de producción, ventas y rentabilidad",
+      icon: <BarChart3 className="h-6 w-6" />,
+      comingSoon: true
+    }
+  ]
+  
   return (
     <div className="flex-1 space-y-8 p-8">
       {/* Header Section */}
@@ -166,10 +281,12 @@ export default function Dashboard() {
               href={module.href}
               comingSoon={module.comingSoon}
               stats={module.stats}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
                 if (!module.comingSoon && module.href) {
-                  // Navigation logic would go here
-                  console.log(`Navigating to ${module.href}`)
+                  console.log('Navigating to:', module.href)
+                  navigate(module.href)
                 }
               }}
             />

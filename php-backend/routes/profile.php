@@ -64,7 +64,7 @@ try {
     
     // Conectar a la base de datos
     $database = new Database();
-    $pdo = $database->getConnection();
+    $pdo = $database->getUserConnection();
     
     // Obtener información del usuario
     $stmt = $pdo->prepare('

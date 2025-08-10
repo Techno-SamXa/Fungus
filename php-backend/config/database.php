@@ -14,7 +14,6 @@ if (file_exists(__DIR__ . '/../.env')) {
 // Configuración de la base de datos
 class Database {
     private $host;
-    private $db_name;
     private $username;
     private $password;
     private $port;
@@ -22,17 +21,21 @@ class Database {
     
     public function __construct() {
         $this->host = $_ENV['DB_HOST'] ?? '50.87.185.24';
-        $this->db_name = $_ENV['DB_NAME'] ?? 'ubtrodmy_Users';
         $this->username = $_ENV['DB_USER'] ?? 'ubtrodmy_Admin';
         $this->password = $_ENV['DB_PASSWORD'] ?? '(?9g&^tP#0Lwf\!?1RHOPk4cTiX1Ps^KcGV';
         $this->port = $_ENV['DB_PORT'] ?? 3306;
     }
     
-    public function getConnection() {
+    public function getConnection($database = null) {
         $this->conn = null;
         
+        // Determinar qué base de datos usar
+        if ($database === null) {
+            $database = $_ENV['DB_NAME'] ?? 'ubtrodmy_FungusMy';
+        }
+        
         try {
-            $dsn = "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name . ";charset=utf8mb4";
+            $dsn = "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $database . ";charset=utf8mb4";
             $this->conn = new PDO($dsn, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -44,9 +47,20 @@ class Database {
         return $this->conn;
     }
     
+    // Método específico para conectar a la base de datos de usuarios
+    public function getUserConnection() {
+        return $this->getConnection('ubtrodmy_Users');
+    }
+    
+    // Método específico para conectar a la base de datos principal
+    public function getMainConnection() {
+        return $this->getConnection('ubtrodmy_FungusMy');
+    }
+    
     public function createTables() {
         try {
-            $conn = $this->getConnection();
+            // Crear tablas de usuarios en la base de datos ubtrodmy_Users
+            $conn = $this->getUserConnection();
             
             // Crear tabla de usuarios
             $sql = "CREATE TABLE IF NOT EXISTS users (

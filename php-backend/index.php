@@ -1,7 +1,7 @@
 <?php
 // Configuración de CORS y headers
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:8081');
+header('Access-Control-Allow-Origin: http://localhost:8080');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -73,6 +73,21 @@ switch ($path) {
             http_response_code(405);
             echo json_encode(['error' => 'Método no permitido']);
         }
+        break;
+        
+    case '/products':
+    case '/api/products':
+        include 'routes/products.php';
+        break;
+        
+    case '/woocommerce':
+    case '/api/woocommerce':
+        include 'routes/woocommerce.php';
+        break;
+        
+    case '/insumos':
+    case '/api/insumos':
+        include 'routes/insumos.php';
         break;
         
     case '/health':

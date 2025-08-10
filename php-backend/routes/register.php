@@ -82,9 +82,9 @@ try {
         exit();
     }
     
-    // Conectar a la base de datos
+    // Conectar a la base de datos de usuarios
     $database = new Database();
-    $pdo = $database->getConnection();
+    $pdo = $database->getUserConnection();
     
     // Verificar si el usuario ya existe
     $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ? OR email = ?');
