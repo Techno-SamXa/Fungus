@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   Store
 } from "lucide-react"
+import { apiRequest } from '@/config/api'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -34,17 +35,23 @@ export default function Dashboard() {
   // Función para obtener el stock total de productos desde la API local
   const fetchProductsStock = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
-      const response = await fetch('http://localhost:8081/products', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await apiRequest('/products')
       if (response.ok) {
         const data = await response.json()
-        // Sumar el stock de todos los productos
-        return data.reduce((total, product) => total + (product.stock || 0), 0)
+        
+        // Sumar el stock de todos los productos con validación
+        const totalStock = data.reduce((total, product) => {
+          const stockValue = parseInt(product.stock) || 0
+          // Verificar que el valor sea finito y válido
+          if (!isFinite(stockValue) || stockValue < 0) {
+            console.warn(`Valor de stock inválido para producto ${product.name}:`, product.stock)
+            return total
+          }
+          return total + stockValue
+        }, 0)
+        
+        // Verificar que el total sea finito
+        return isFinite(totalStock) ? totalStock : 0
       }
     } catch (error) {
       console.error('Error fetching products stock:', error)
@@ -55,13 +62,7 @@ export default function Dashboard() {
   // Función para obtener el conteo de productos de WooCommerce
   const fetchWooCommerceCount = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
-      const response = await fetch('http://localhost:8081/woocommerce', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await apiRequest('/woocommerce')
       if (response.ok) {
         const data = await response.json()
         return data.length || 0
@@ -75,17 +76,23 @@ export default function Dashboard() {
   // Función para obtener el stock total de insumos desde la API local
   const fetchInsumosStock = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
-      const response = await fetch('http://localhost:8081/insumos', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await apiRequest('/insumos')
       if (response.ok) {
         const data = await response.json()
-        // Sumar el stock de todos los insumos
-        return data.reduce((total, insumo) => total + (insumo.stock || 0), 0)
+        
+        // Sumar el stock de todos los insumos con validación
+        const totalStock = data.reduce((total, insumo) => {
+          const stockValue = parseInt(insumo.stock) || 0
+          // Verificar que el valor sea finito y válido
+          if (!isFinite(stockValue) || stockValue < 0) {
+            console.warn(`Valor de stock inválido para insumo ${insumo.name}:`, insumo.stock)
+            return total
+          }
+          return total + stockValue
+        }, 0)
+        
+        // Verificar que el total sea finito
+        return isFinite(totalStock) ? totalStock : 0
       }
     } catch (error) {
       console.error('Error fetching insumos stock:', error)
@@ -129,21 +136,30 @@ export default function Dashboard() {
       description: "Gestión y control de productos internos en desarrollo y producción",
       icon: <Package className="h-6 w-6" />,
       href: "/productos",
-      stats: { label: "unidades en stock", value: stats.productos }
+      stats: { 
+        label: "unidades en stock", 
+        value: isFinite(stats.productos) ? stats.productos.toLocaleString() : "0"
+      }
     },
     {
       title: "Tienda Digital",
       description: "Conexión con WooCommerce para gestión de productos online",
       icon: <Store className="h-6 w-6" />,
       href: "/tienda-digital",
-      stats: { label: "productos sincronizados", value: stats.tiendaDigital }
+      stats: { 
+        label: "productos sincronizados", 
+        value: isFinite(stats.tiendaDigital) ? stats.tiendaDigital.toLocaleString() : "0"
+      }
     },
     {
       title: "Insumos",
       description: "Control de materiales, sustrato y equipamiento para cultivo",
       icon: <Factory className="h-6 w-6" />,
       href: "/insumos",
-      stats: { label: "insumos en stock", value: stats.insumos }
+      stats: { 
+        label: "insumos en stock", 
+        value: isFinite(stats.insumos) ? stats.insumos.toLocaleString() : "0"
+      }
     },
     {
       title: "Compradores",

@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Package, FileText, DollarSign, BarChart3, Camera, CheckCircle, ChevronLeft, ChevronRight, ArrowLeft, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest, getImageUrl } from '@/config/api';
 
 interface Product {
   id: number;
@@ -18,6 +19,7 @@ interface Product {
   price: number;
   stock: number;
   dimensions: string;
+  image?: string;
   created_at: string;
   updated_at: string;
 }
@@ -46,13 +48,7 @@ const Productos = () => {
   // Obtener productos del backend
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8081/products', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiRequest('/products');
       
       if (response.ok) {
         const data = await response.json();
@@ -93,16 +89,15 @@ const Productos = () => {
     e.preventDefault();
     
     try {
-      const token = localStorage.getItem('auth_token');
-      const url = editingProduct 
-        ? `http://localhost:8081/products?id=${editingProduct.id}`
-        : 'http://localhost:8081/products';
+      const endpoint = editingProduct 
+        ? `/products?id=${editingProduct.id}`
+        : '/products';
       
       const method = editingProduct ? 'PUT' : 'POST';
       
       let body;
-      let headers: Record<string, string> = {
-        'Authorization': `Bearer ${token}`
+      let options: RequestInit = {
+        method
       };
       
       if (formData.image) {
@@ -117,7 +112,6 @@ const Productos = () => {
         body = formDataToSend;
       } else {
         // Si no hay imagen, usar JSON
-        headers['Content-Type'] = 'application/json';
         body = JSON.stringify({
           name: formData.name,
           description: formData.description,
@@ -127,11 +121,9 @@ const Productos = () => {
         });
       }
       
-      const response = await fetch(url, {
-        method,
-        headers,
-        body
-      });
+      options.body = body;
+      
+      const response = await apiRequest(endpoint, options);
       
       if (response.ok) {
         toast({
@@ -167,13 +159,8 @@ const Productos = () => {
     }
     
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:8081/products?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await apiRequest(`/products?id=${id}`, {
+        method: 'DELETE'
       });
       
       if (response.ok) {
@@ -507,13 +494,17 @@ const Productos = () => {
                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-sm">
                          {product.image ? (
                            <img 
-                             src={typeof product.image === 'string' ? product.image : URL.createObjectURL(product.image)} 
+                             src={getImageUrl(product.image) || ''} 
                              alt={product.name}
                              className="w-full h-full object-cover"
+                             onError={(e) => {
+                               const target = e.target as HTMLImageElement;
+                               target.style.display = 'none';
+                               target.nextElementSibling?.classList.remove('hidden');
+                             }}
                            />
-                         ) : (
-                           <Package className="h-4 w-4 md:h-6 md:w-6 text-gray-400" />
-                         )}
+                         ) : null}
+                         <Package className={`h-4 w-4 md:h-6 md:w-6 text-gray-400 ${product.image ? 'hidden' : ''}`} />
                        </div>
                      </TableCell>
                      <TableCell className="font-semibold text-gray-900 dark:text-gray-100">
@@ -576,13 +567,17 @@ const Productos = () => {
                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-sm flex-shrink-0">
                        {product.image ? (
                          <img 
-                           src={typeof product.image === 'string' ? product.image : URL.createObjectURL(product.image)} 
+                           src={getImageUrl(product.image) || ''} 
                            alt={product.name}
                            className="w-full h-full object-cover"
+                           onError={(e) => {
+                             const target = e.target as HTMLImageElement;
+                             target.style.display = 'none';
+                             target.nextElementSibling?.classList.remove('hidden');
+                           }}
                          />
-                       ) : (
-                         <Package className="h-6 w-6 text-gray-400" />
-                       )}
+                       ) : null}
+                       <Package className={`h-6 w-6 text-gray-400 ${product.image ? 'hidden' : ''}`} />
                      </div>
                      
                      {/* Información del producto */}

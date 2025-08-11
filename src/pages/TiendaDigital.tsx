@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Edit, Package, FileText, DollarSign, BarChart3, ShoppingCart, Store, ChevronLeft, ChevronRight, ExternalLink, RefreshCw, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '@/config/api';
 
 interface WooCommerceProduct {
   id: number;
@@ -57,13 +58,7 @@ const TiendaDigital = () => {
   const fetchProducts = async (showRefreshToast = false) => {
     try {
       setRefreshing(true);
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8081/woocommerce', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiRequest('/woocommerce');
       
       if (response.ok) {
         const data = await response.json();
@@ -101,13 +96,8 @@ const TiendaDigital = () => {
     if (!editingProduct) return;
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:8081/woocommerce/${editingProduct.id}`, {
+      const response = await apiRequest(`/woocommerce/${editingProduct.id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           stock_quantity: parseInt(stockData.stock_quantity),
           stock_status: stockData.stock_status

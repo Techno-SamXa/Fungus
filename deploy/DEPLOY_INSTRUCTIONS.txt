@@ -1,0 +1,22 @@
+# Instrucciones de Despliegue
+
+## Frontend
+1. Sube todos los archivos de la carpeta 'frontend/' a tu directorio public_html en cPanel
+2. Asegúrate de que el archivo .htaccess se haya subido correctamente
+
+## Backend PHP
+1. Sube todos los archivos de la carpeta 'php-backend/' a: public_html/php-backend/
+2. Edita el archivo .env con tus credenciales reales de base de datos
+3. Ejecuta el script de inicialización: php init-database.php
+
+## Verificación
+- Frontend: https://tu-dominio.com/admin/
+- Backend test: https://tu-dominio.com/php-backend/test-connection.php
+- API login: https://tu-dominio.com/php-backend/login
+
+## Configuración Adicional
+- Asegúrate de que tu hosting soporte PHP 7.4+
+- Verifica que las extensiones PDO y PDO_MySQL estén habilitadas
+- Configura las variables de entorno en el archivo .env del backend PHP
+
+**NOTA: Este proyecto usa backend PHP, no Node.js**

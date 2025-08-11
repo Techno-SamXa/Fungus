@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Factory, FileText, DollarSign, RefreshCw, Camera, CheckCircle, ChevronLeft, ChevronRight, ArrowLeft, Home } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest, getImageUrl } from '@/config/api';
 
 interface Insumo {
   id: number;
@@ -48,13 +49,7 @@ const Insumos = () => {
   // Obtener insumos del backend
   const fetchInsumos = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8081/insumos', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiRequest('/insumos');
       
       if (response.ok) {
         const data = await response.json();
@@ -82,13 +77,7 @@ const Insumos = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8081/insumos', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiRequest('/insumos');
       
       if (response.ok) {
         const data = await response.json();
@@ -133,16 +122,15 @@ const Insumos = () => {
     e.preventDefault();
     
     try {
-      const token = localStorage.getItem('auth_token');
-      const url = editingInsumo 
-        ? `http://localhost:8081/insumos?id=${editingInsumo.id}`
-        : 'http://localhost:8081/insumos';
+      const endpoint = editingInsumo 
+        ? `/insumos?id=${editingInsumo.id}`
+        : '/insumos';
       
       const method = editingInsumo ? 'PUT' : 'POST';
       
       let body;
-      let headers: Record<string, string> = {
-        'Authorization': `Bearer ${token}`
+      let options: any = {
+        method
       };
       
       if (formData.image) {
@@ -154,11 +142,11 @@ const Insumos = () => {
         formDataToSend.append('stock', formData.stock);
         formDataToSend.append('dimensions', formData.dimensions);
         formDataToSend.append('image', formData.image);
-        body = formDataToSend;
+        options.body = formDataToSend;
+        options.isFormData = true;
       } else {
         // Si no hay imagen nueva, usar JSON
-        headers['Content-Type'] = 'application/json';
-        body = JSON.stringify({
+        options.body = JSON.stringify({
           name: formData.name,
           description: formData.description,
           price: parseFloat(formData.price),
@@ -168,11 +156,7 @@ const Insumos = () => {
         });
       }
       
-      const response = await fetch(url, {
-        method,
-        headers,
-        body
-      });
+      const response = await apiRequest(endpoint, options);
       
       if (response.ok) {
         toast({
@@ -208,13 +192,8 @@ const Insumos = () => {
     }
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:8081/insumos?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await apiRequest(`/insumos?id=${id}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
@@ -554,7 +533,7 @@ const Insumos = () => {
                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-sm">
                          {insumo.image ? (
                            <img 
-                             src={insumo.image} 
+                             src={getImageUrl(insumo.image)} 
                              alt={insumo.name}
                              className="w-full h-full object-cover"
                              onError={(e) => {
@@ -628,7 +607,7 @@ const Insumos = () => {
                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-sm flex-shrink-0">
                        {insumo.image ? (
                          <img 
-                           src={insumo.image} 
+                           src={getImageUrl(insumo.image)} 
                            alt={insumo.name}
                            className="w-full h-full object-cover"
                            onError={(e) => {
