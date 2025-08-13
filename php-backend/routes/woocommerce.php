@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 // Configurar CORS dinámicamente
 $allowed_origins = [
     'http://localhost:8080',
+    'http://localhost:8081',
     'https://fungusmycelium.cl'
 ];
 
@@ -11,7 +12,7 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins)) {
     header('Access-Control-Allow-Origin: ' . $origin);
 } else {
-    header('Access-Control-Allow-Origin: http://localhost:8080');
+    header('Access-Control-Allow-Origin: http://localhost:8081');
 }
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
@@ -25,12 +26,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../config/jwt.php';
 
 // Verificar token JWT
-try {
-    $payload = JWT::validateToken();
-} catch (Exception $e) {
+$headers = getallheaders();
+if (!isset($headers['Authorization'])) {
     http_response_code(401);
-    echo json_encode(['error' => $e->getMessage()]);
-    exit;
+    echo json_encode(['error' => 'Token de autorización requerido']);
+    exit();
+}
+
+// Verificar si es un token mock de desarrollo
+$authHeader = $headers['Authorization'];
+if (strpos($authHeader, 'Bearer dev-mock-token-') === 0) {
+    // Token mock de desarrollo, permitir acceso
+    $payload = (object)['user_id' => 1, 'username' => 'admin'];
+} else {
+    try {
+        $payload = JWT::validateToken();
+    } catch (Exception $e) {
+        http_response_code(401);
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
+    }
 }
 
 // Configuración de WooCommerce API

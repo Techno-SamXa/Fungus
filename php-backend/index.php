@@ -1,10 +1,12 @@
 <?php
-// Configuración de CORS y headers
+// Configuración de headers
 header('Content-Type: application/json');
 
-// Configurar CORS dinámicamente según el origen
+// Configurar CORS para servidor de desarrollo PHP (no procesa .htaccess)
 $allowed_origins = [
     'http://localhost:8080',
+    'http://localhost:8081',
+    'http://localhost:5173',  // Vite dev server
     'https://fungusmycelium.cl'
 ];
 
@@ -12,8 +14,8 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins)) {
     header('Access-Control-Allow-Origin: ' . $origin);
 } else {
-    // Fallback para desarrollo local
-    header('Access-Control-Allow-Origin: http://localhost:8080');
+    // Fallback para desarrollo local (Vite)
+    header('Access-Control-Allow-Origin: http://localhost:5173');
 }
 
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -38,6 +40,12 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // Remover el prefijo del path si existe
 $path = str_replace('/php-backend', '', $path);
+
+// Configurar PATH_INFO para rutas con parámetros
+if (preg_match('#^(/ventas|/compradores|/products|/insumos|/compras|/proveedores)(/.*)?$#', $path, $matches)) {
+    $_SERVER['PATH_INFO'] = $matches[2] ?? '';
+    $path = $matches[1];
+}
 
 // Servir archivos estáticos de la carpeta uploads
 if (strpos($path, '/uploads/') === 0) {
@@ -118,6 +126,31 @@ switch ($path) {
     case '/insumos':
     case '/api/insumos':
         include 'routes/insumos.php';
+        break;
+        
+    case '/compradores':
+    case '/api/compradores':
+        include 'routes/compradores.php';
+        break;
+        
+    case '/ventas':
+    case '/api/ventas':
+        include 'routes/ventas.php';
+        break;
+        
+    case '/compras':
+    case '/api/compras':
+        include 'routes/compras.php';
+        break;
+        
+    case '/proveedores':
+    case '/api/proveedores':
+        include 'routes/proveedores.php';
+        break;
+        
+    case '/cotizaciones':
+    case '/api/cotizaciones':
+        include 'routes/cotizaciones.php';
         break;
         
     case '/health':

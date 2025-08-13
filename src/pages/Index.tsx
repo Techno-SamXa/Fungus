@@ -6,6 +6,11 @@ import Dashboard from "./Dashboard"
 import Productos from "./Productos"
 import TiendaDigital from "./TiendaDigital"
 import Insumos from "./Insumos"
+import Compradores from "./Compradores"
+import Ventas from "./Ventas"
+import Proveedores from "./Proveedores"
+import Compras from "./Compras"
+import Cotizaciones from "./Cotizaciones"
 
 const Index = () => {
   return (
@@ -20,6 +25,11 @@ const Index = () => {
               <Route path="/productos" element={<Productos />} />
               <Route path="/tienda-digital" element={<TiendaDigital />} />
               <Route path="/insumos" element={<Insumos />} />
+              <Route path="/compradores" element={<Compradores />} />
+              <Route path="/ventas" element={<Ventas />} />
+              <Route path="/proveedores" element={<Proveedores />} />
+              <Route path="/compras" element={<Compras />} />
+              <Route path="/cotizaciones" element={<Cotizaciones />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

@@ -5,8 +5,9 @@ RewriteEngine On
 # Configurar CORS dinámicamente
 SetEnvIf Origin "^https://fungusmycelium\.cl$" CORS_ORIGIN=$0
 SetEnvIf Origin "^http://localhost:8080$" CORS_ORIGIN=$0
+SetEnvIf Origin "^http://localhost:8081$" CORS_ORIGIN=$0
 Header always set Access-Control-Allow-Origin "%{CORS_ORIGIN}e" env=CORS_ORIGIN
-Header always set Access-Control-Allow-Origin "http://localhost:8080" "expr=-z %{CORS_ORIGIN}"
+Header always set Access-Control-Allow-Origin "http://localhost:8081" "expr=-z %{CORS_ORIGIN}"
 Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
 Header always set Access-Control-Allow-Credentials "true"

@@ -378,7 +378,7 @@ const Insumos = () => {
                         onChange={handleInputChange}
                         placeholder="Ej: Alcohol 99%"
                         required
-                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                        className="bg-white dark:bg-white border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -392,7 +392,7 @@ const Insumos = () => {
                         onChange={handleInputChange}
                         placeholder="0"
                         required
-                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                        className="bg-white dark:bg-white border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
                   </div>
@@ -408,7 +408,7 @@ const Insumos = () => {
                         onChange={handleInputChange}
                         placeholder="0"
                         required
-                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                        className="bg-white dark:bg-white border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -419,7 +419,7 @@ const Insumos = () => {
                         value={formData.dimensions}
                         onChange={handleInputChange}
                         placeholder="Ej: 500ml, 1kg, etc."
-                        className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500"
+                        className="bg-white dark:bg-white border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200 text-gray-900 placeholder:text-gray-500"
                       />
                     </div>
                   </div>
@@ -434,7 +434,7 @@ const Insumos = () => {
                       placeholder="Describe el insumo, su uso y características..."
                       required
                       rows={3}
-                      className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 resize-none"
+                      className="bg-white dark:bg-white border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200 resize-none text-gray-900 placeholder:text-gray-500"
                     />
                   </div>
                   
@@ -449,7 +449,7 @@ const Insumos = () => {
                       type="file"
                       accept="image/*"
                       onChange={handleImageChange}
-                      className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500 file:bg-green-50 file:text-green-700 file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-3 hover:file:bg-green-100"
+                      className="bg-white dark:bg-white border-gray-200 dark:border-gray-600 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200 text-gray-900 file:bg-green-50 file:text-green-700 file:border-0 file:rounded-md file:px-3 file:py-1 file:mr-3 hover:file:bg-green-100"
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400">Formatos soportados: JPG, PNG, GIF (máx. 5MB)</p>
                   </div>

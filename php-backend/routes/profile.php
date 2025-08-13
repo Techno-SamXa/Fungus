@@ -26,28 +26,35 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    // Obtener token del header Authorization
-    $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    // Verificar token de autorización
+    $headers = [];
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+    } else {
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+    }
     
-    if (empty($authHeader)) {
+    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : (isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '');
+    
+    // Verificar token Bearer
+    if (!$authHeader || !preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
         http_response_code(401);
         echo json_encode(['error' => 'Token de autorización requerido']);
         exit();
     }
-    
-    // Extraer token (formato: "Bearer <token>")
-    if (strpos($authHeader, 'Bearer ') !== 0) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Formato de token inválido']);
-        exit();
-    }
-    
-    $token = substr($authHeader, 7); // Remover "Bearer "
-    
-    // Decodificar y validar token JWT
+
+    $token = $matches[1];
+
+    // Decodificar y validar el JWT token
     try {
         $payload = JWT::decode($token);
+        if (!$payload || !isset($payload['user_id'])) {
+            throw new Exception('Token inválido');
+        }
     } catch (Exception $e) {
         http_response_code(401);
         echo json_encode(['error' => 'Token inválido o expirado']);
@@ -67,11 +74,7 @@ try {
     $pdo = $database->getUserConnection();
     
     // Obtener información del usuario
-    $stmt = $pdo->prepare('
-        SELECT id, username, email, full_name, is_verified, created_at, updated_at 
-        FROM users 
-        WHERE id = ?
-    ');
+    $stmt = $pdo->prepare('SELECT id, username, email, full_name, is_verified, created_at, updated_at FROM users WHERE id = ?');
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -84,35 +87,53 @@ try {
     // Obtener estadísticas de login del usuario
     $stmt = $pdo->prepare('
         SELECT 
-            COUNT(CASE WHEN action = "login" AND success = TRUE THEN 1 END) as successful_logins,
-            COUNT(CASE WHEN action = "login" AND success = FALSE THEN 1 END) as failed_logins,
-            MAX(CASE WHEN action = "login" AND success = TRUE THEN created_at END) as last_login,
-            MIN(CASE WHEN action = "register" THEN created_at END) as registration_date
+            COUNT(CASE WHEN success = TRUE THEN 1 END) as total_logins,
+            COUNT(CASE WHEN success = FALSE THEN 1 END) as failed_attempts,
+            MAX(CASE WHEN success = TRUE THEN created_at END) as last_login
         FROM auth_logs 
-        WHERE user_id = ?
+        WHERE user_id = ? AND action = "login"
     ');
     $stmt->execute([$user_id]);
-    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+    $login_stats = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Obtener sesiones activas
+    // Calcular días desde la creación de la cuenta
+    $account_created = new DateTime($user['created_at']);
+    $now = new DateTime();
+    $account_age_days = $now->diff($account_created)->days;
+    
+    $stats = [
+        'total_logins' => (int)$login_stats['total_logins'],
+        'last_login' => $login_stats['last_login'],
+        'failed_attempts' => (int)$login_stats['failed_attempts'],
+        'account_age_days' => $account_age_days
+    ];
+    
+    // Obtener sesiones activas del usuario
     $stmt = $pdo->prepare('
-        SELECT COUNT(*) as active_sessions
+        SELECT id, created_at, expires_at
         FROM user_sessions 
         WHERE user_id = ? AND expires_at > NOW()
-    ');
-    $stmt->execute([$user_id]);
-    $sessions = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // Obtener actividad reciente
-    $stmt = $pdo->prepare('
-        SELECT action, success, ip_address, created_at
-        FROM auth_logs 
-        WHERE user_id = ? 
-        ORDER BY created_at DESC 
+        ORDER BY created_at DESC
         LIMIT 10
     ');
     $stmt->execute([$user_id]);
+    $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Obtener actividad reciente del usuario
+    $stmt = $pdo->prepare('
+        SELECT action, ip_address, user_agent, success, details, created_at
+        FROM auth_logs 
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT 20
+    ');
+    $stmt->execute([$user_id]);
     $recent_activity = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Convertir success a boolean para JSON
+    foreach ($recent_activity as &$activity) {
+        $activity['success'] = (bool)$activity['success'];
+    }
     
     // Respuesta exitosa
     http_response_code(200);
@@ -128,20 +149,13 @@ try {
             'updated_at' => $user['updated_at']
         ],
         'stats' => [
-            'successful_logins' => (int)$stats['successful_logins'],
-            'failed_logins' => (int)$stats['failed_logins'],
+            'total_logins' => $stats['total_logins'],
+            'failed_attempts' => $stats['failed_attempts'],
             'last_login' => $stats['last_login'],
-            'registration_date' => $stats['registration_date'],
-            'active_sessions' => (int)$sessions['active_sessions']
+            'account_age_days' => $stats['account_age_days']
         ],
-        'recent_activity' => array_map(function($activity) {
-            return [
-                'action' => $activity['action'],
-                'success' => (bool)$activity['success'],
-                'ip_address' => $activity['ip_address'],
-                'created_at' => $activity['created_at']
-            ];
-        }, $recent_activity)
+        'sessions' => $sessions,
+        'recent_activity' => $recent_activity
     ]);
     
 } catch (PDOException $e) {

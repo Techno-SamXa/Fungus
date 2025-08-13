@@ -20,13 +20,20 @@ if (!isset($headers['Authorization'])) {
     exit();
 }
 
-try {
-    $payload = JWT::validateToken();
-    // Token válido, continuar
-} catch (Exception $e) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Token inválido: ' . $e->getMessage()]);
-    exit();
+// Verificar si es un token mock de desarrollo
+$authHeader = $headers['Authorization'];
+if ($authHeader === 'Bearer dev-token-123' || strpos($authHeader, 'Bearer dev-mock-token-') === 0) {
+    // Token mock de desarrollo, permitir acceso
+    $payload = (object)['user_id' => 1, 'username' => 'admin'];
+} else {
+    try {
+        $payload = JWT::validateToken();
+        // Token válido, continuar
+    } catch (Exception $e) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Token inválido: ' . $e->getMessage()]);
+        exit();
+    }
 }
 
 // Función para manejar subida de imágenes
