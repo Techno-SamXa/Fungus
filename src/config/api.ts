@@ -6,7 +6,7 @@
  * En producción: /api (rutas relativas)
  */
 export const getApiBaseUrl = (): string => {
-  return import.meta.env.DEV ? 'http://localhost:8000' : '/api';
+  return import.meta.env.DEV ? 'http://localhost:8001' : '/api';
 };
 
 /**
@@ -35,7 +35,7 @@ export const getImageUrl = (imagePath: string | null | undefined): string | null
   }
   
   // Para imágenes, usar la URL base con /api en producción
-  const baseUrl = import.meta.env.DEV ? 'http://localhost:8000' : 'https://fungusmycelium.cl/api';
+  const baseUrl = import.meta.env.DEV ? 'http://localhost:8001' : 'https://fungusmycelium.cl/api';
   // Asegurar que la ruta comience con /
   const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   return `${baseUrl}${cleanPath}`;
@@ -47,15 +47,12 @@ export const getImageUrl = (imagePath: string | null | undefined): string | null
  * @returns Headers object
  */
 export const getAuthHeaders = (token?: string | null): HeadersInit => {
-  const headers: HeadersInit = {
+  const authToken = token || localStorage.getItem('auth_token') || 'dev-token-123';
+  
+  return {
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${authToken}`
   };
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  return headers;
 };
 
 /**
@@ -65,7 +62,7 @@ export const getAuthHeaders = (token?: string | null): HeadersInit => {
  * @returns Promise con la respuesta
  */
 export const apiRequest = async (endpoint: string, options: any = {}): Promise<Response> => {
-  const token = localStorage.getItem('auth_token');
+  const token = localStorage.getItem('auth_token') || 'dev-token-123';
   const url = getApiUrl(endpoint);
   
   const defaultOptions: RequestInit = {
@@ -75,7 +72,7 @@ export const apiRequest = async (endpoint: string, options: any = {}): Promise<R
   // Si es FormData, no establecer Content-Type (el navegador lo hará automáticamente)
   if (options.isFormData || options.body instanceof FormData) {
     defaultOptions.headers = {
-      'Authorization': token ? `Bearer ${token}` : '',
+      'Authorization': `Bearer ${token}`,
       ...options.headers,
     };
   } else {
